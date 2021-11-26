@@ -2,7 +2,7 @@ __version__ = 1.0
 __cacheable__ = True
 
 import json
-import ConfigParser
+import configparser
 from application import config
 
 def update_document(data):

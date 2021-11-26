@@ -1,14 +1,14 @@
 __version__ = 1.0
 __cacheable__ = True
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import json
 from application import config
 
 CONFIG_KEY = 'module_awsomlight'
 
 def update_document(data):
-	remote = urllib2.urlopen(config.get(CONFIG_KEY, 'url'), timeout=config.getint(CONFIG_KEY, 'timeout')).read()
+	remote = urllib.request.urlopen(config.get(CONFIG_KEY, 'url'), timeout=config.getint(CONFIG_KEY, 'timeout')).read()
 	remote = json.loads(remote)
 	
 	if not data.get('sensors'):

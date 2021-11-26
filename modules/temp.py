@@ -3,16 +3,16 @@
 __version__ = 1.0
 __cacheable__ = True
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import json
-import ConfigParser
+import configparser
 from application import config
 
 CONFIG_KEY = 'module_temp'
 
 
 def update_document(data):
-	remote = urllib2.urlopen(config.get(CONFIG_KEY, 'url'), timeout=config.getint(CONFIG_KEY, 'timeout'))
+	remote = urllib.request.urlopen(config.get(CONFIG_KEY, 'url'), timeout=config.getint(CONFIG_KEY, 'timeout'))
 
 	if not data.get('sensors'):
 		data['sensors'] = {}

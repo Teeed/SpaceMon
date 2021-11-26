@@ -22,12 +22,12 @@ import json
 import yaml
 import time
 import copy
-import ConfigParser
+import configparser
 from copy import deepcopy
 from threading import Thread
 from bottle import route, run, response
 
-config = ConfigParser.ConfigParser()
+config = configparser.ConfigParser()
 config.read(('config.cfg', 'localconfig.cfg'))
 
 yamldata = ''
@@ -41,7 +41,7 @@ def dict_merge(a, b):
 		return b
 
 	result = deepcopy(a)
-	for k, v in b.iteritems():
+	for k, v in b.items():
 		if k in result and isinstance(result[k], dict):
 			result[k] = dict_merge(result[k], v)
 		elif k in result and isinstance(result[k], list):
@@ -94,7 +94,7 @@ def main():
 				function_pointer = getattr(module, 'update_document')
 
 				if not callable(function_pointer):
-					print 'WARNING: modules.%s.update_document is not callable!' % module_name
+					print('WARNING: modules.%s.update_document is not callable!' % module_name)
 					continue
 
 				try:
@@ -103,22 +103,22 @@ def main():
 					if cache_time:
 						try:
 							if not getattr(module, 'update_document', '__cacheable__'):
-								print 'WARNING: module "%s" is not cacheable but caching enabled in config file... This can result in big boom!'
+								print('WARNING: module "%s" is not cacheable but caching enabled in config file... This can result in big boom!')
 						except exceptions.AttributeError:
-							print 'WARNING: module "%s" does not have __cacheable__ flag...'
+							print('WARNING: module "%s" does not have __cacheable__ flag...')
 
 						function_pointer = caching_class(function_pointer, cache_time)
 
 						modules_parallel[module_name] = function_pointer
-				except ConfigParser.NoOptionError:
+				except configparser.NoOptionError:
 					pass
 
 				modules_enabled[module_name] = function_pointer
 
 			except ImportError as e:
-				print 'WARNING: can not import module "%s": %s' % (module_name, str(e))
+				print('WARNING: can not import module "%s": %s' % (module_name, str(e)))
 
-	print 'Loaded modules: %s\n' % ', '.join(modules_enabled.keys())
+	print('Loaded modules: %s\n' % ', '.join(modules_enabled.keys()))
 
 	@route('/')
 	def index():
@@ -127,7 +127,7 @@ def main():
 		threads = []
 
 		# run threads
-		for module_name, function_pointer in modules_parallel.iteritems():
+		for module_name, function_pointer in modules_parallel.items():
 			if not function_pointer.is_run_needed():
 				continue
 
@@ -142,13 +142,13 @@ def main():
 
 		# will exec modules 
 		# or exec merge for threaded modules
-		for module_name, function_pointer in modules_enabled.iteritems():
+		for module_name, function_pointer in modules_enabled.items():
 			new_data = None
 			try:
 				new_data = function_pointer(copy.deepcopy(data))
 				data = new_data
 			except Exception as e:
-				print 'WARNING: module "%s" failed: %s' % (module_name, str(e))				
+				print('WARNING: module "%s" failed: %s' % (module_name, str(e)))				
 
 		# response.charset = 'utf8'
 		response.set_header('Content-Type', 'application/json')
