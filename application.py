@@ -19,7 +19,13 @@
 import os
 import sys
 import json
-import yaml
+
+from yaml import load
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
+
 import time
 import copy
 import configparser
@@ -28,13 +34,13 @@ from threading import Thread
 from bottle import route, run, response
 
 config = configparser.ConfigParser()
-config.read(('config.cfg', 'localconfig.cfg'))
+config.read(('localconfig.cfg'))
 
 yamldata = ''
-with file(config.get('data', 'file'), 'r') as f:
+with open(config.get('data', 'file'), 'r') as f:
 	yamldata = f.read()
 
-yamldata = yaml.load(yamldata)
+yamldata = load(yamldata, Loader=Loader)
 
 def dict_merge(a, b):
 	if not isinstance(b, dict):
@@ -82,7 +88,7 @@ class caching_class:
 		self.cached_data = self.original_update_document({})
 		self.last_cache = time.time() + self.cache_time
 
-def main():
+def main(run_server=True):
 	modules_enabled = {}
 	modules_parallel = {}
 
@@ -157,7 +163,8 @@ def main():
 		
 		return json.dumps(data)
 
-	run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=config.getboolean('application', 'debug'))
+	if run_server:
+		run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=config.getboolean('application', 'debug'))
 
 if __name__ == '__main__':
 	main()
