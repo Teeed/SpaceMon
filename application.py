@@ -90,8 +90,12 @@ def main(run_server=True):
 		response.set_header('Content-Type', 'application/json')
 		response.set_header('Access-Control-Allow-Origin', '*')
 		response.set_header('Cache-Control', 'max-age=60')
-		response.set_header('X-Used-Modules', ','.join(mods_ok))
-		response.set_header('X-Failed-Modules', ','.join(mods_fail))
+		
+		if mods_ok:
+			response.set_header('X-Used-Modules', ','.join(mods_ok))
+
+		if mods_fail:
+			response.set_header('X-Failed-Modules', ','.join(mods_fail))
 		
 		return json.dumps(data)
 
