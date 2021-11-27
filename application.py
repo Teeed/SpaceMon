@@ -80,7 +80,7 @@ def main(run_server=True):
 		# response.charset = 'utf8'
 		response.set_header('Content-Type', 'application/json')
 		response.set_header('Access-Control-Allow-Origin', '*')
-		response.set_header('Cache-Control', 'no-cache')
+		response.set_header('Cache-Control', 'max-age=60')
 		
 		return json.dumps(data)
 
