@@ -16,6 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+logging.basicConfig(level=logging.ERROR)
+
 import os
 import sys
 import json
@@ -53,15 +56,15 @@ def main(run_server=True):
 				function_pointer = getattr(module, 'update_document')
 
 				if not callable(function_pointer):
-					print('WARNING: modules.%s.update_document is not callable!' % module_name)
+					logging.warning('modules.%s.update_document is not callable!', module_name)
 					continue
 
 				modules_enabled[module_name] = function_pointer
 
 			except ImportError as e:
-				print('WARNING: can not import module "%s": %s' % (module_name, str(e)))
+				logging.warning('can not import module "%s": %s', module_name, str(e))
 
-	print('Loaded modules: %s\n' % ', '.join(modules_enabled.keys()))
+	logging.info('Loaded modules: %s', ', '.join(modules_enabled.keys()))
 
 	@route('/')
 	def index():
@@ -74,8 +77,8 @@ def main(run_server=True):
 			try:
 				new_data = function_pointer(copy.deepcopy(data))
 				data = new_data
-			except Exception as e:
-				print('WARNING: module "%s" failed: %s' % (module_name, str(e)))				
+			except:
+				logging.exception('module "%s" failed', module_name)			
 
 		# response.charset = 'utf8'
 		response.set_header('Content-Type', 'application/json')
