@@ -70,6 +70,9 @@ def main(run_server=True):
 	def index():
 		data = copy.deepcopy(yamldata)
 
+		mods_ok: set[str] = set([])
+		mods_fail: set[str] = set([])
+
 		# will exec modules 
 		# or exec merge for threaded modules
 		for module_name, function_pointer in modules_enabled.items():
@@ -77,13 +80,18 @@ def main(run_server=True):
 			try:
 				new_data = function_pointer(copy.deepcopy(data))
 				data = new_data
+
+				mods_ok.add(module_name)
 			except:
-				logging.exception('module "%s" failed', module_name)			
+				logging.exception('module "%s" failed', module_name)
+				mods_fail.add(module_name)
 
 		# response.charset = 'utf8'
 		response.set_header('Content-Type', 'application/json')
 		response.set_header('Access-Control-Allow-Origin', '*')
 		response.set_header('Cache-Control', 'max-age=60')
+		response.set_header('X-Used-Modules', ','.join(mods_ok))
+		response.set_header('X-Failed-Modules', ','.join(mods_fail))
 		
 		return json.dumps(data)
 
