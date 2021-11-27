@@ -14,7 +14,7 @@ def update_document(data):
 	remote = json.loads(remote)
 
 	if remote['zm/hs_active']['timestamp'] < time.time() - 120:
-		return
+		return data
 
 	is_open = remote['zm/hs_active']['payload'] == 1
 	
@@ -22,7 +22,9 @@ def update_document(data):
 		data['sensors'] = {}
 
 		if not data.get('state'):
-			data['state'] = {}
+			data['state'] = {'open': False}
 
-		data['state']['open'] = is_open
+		data['state']['open'] |= is_open 
+
+	return data
 
